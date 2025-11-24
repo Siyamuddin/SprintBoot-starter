@@ -1,22 +1,31 @@
 package com.siyamuddin.blog.blogappapis.Security;
 
+import com.siyamuddin.blog.blogappapis.Config.Properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
+
 @Configuration
 public class JwtHelper {
-    //requirement :
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
-
-    //    public static final long JWT_TOKEN_VALIDITY =  60;
-    private String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";
+    
+    @Autowired
+    private JwtProperties jwtProperties;
+    
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+    }
 
     //retrieve username from jwt token
     public String getUsernameFromToken(String token) {
@@ -35,7 +44,11 @@ public class JwtHelper {
 
     //for retrieveing any information from token we will need the secret key
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     //check if the token has expired
@@ -44,10 +57,22 @@ public class JwtHelper {
         return expiration.before(new Date());
     }
 
-    //generate token for user
+    //generate access token for user
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername());
+        return doGenerateToken(claims, userDetails.getUsername(), jwtProperties.getAccessTokenValidity());
+    }
+    
+    //generate refresh token
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "refresh");
+        return doGenerateToken(claims, userDetails.getUsername(), jwtProperties.getRefreshTokenValidity());
+    }
+    
+    //generate refresh token string (simple UUID-based for database storage)
+    public String generateRefreshTokenString() {
+        return UUID.randomUUID().toString();
     }
 
     //while creating the token -
@@ -55,11 +80,15 @@ public class JwtHelper {
     //2. Sign the JWT using the HS512 algorithm and secret key.
     //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     //   compaction of the JWT to a URL-safe string
-    private String doGenerateToken(Map<String, Object> claims, String subject) {
-
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+    private String doGenerateToken(Map<String, Object> claims, String subject, Long validityInSeconds) {
+        var builder = Jwts.builder()
+                .setClaims(claims != null ? claims : new HashMap<>())
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + validityInSeconds * 1000))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512);
+        
+        return builder.compact();
     }
 
     //validate token

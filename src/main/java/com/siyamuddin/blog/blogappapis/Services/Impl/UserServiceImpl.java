@@ -5,13 +5,16 @@ import com.siyamuddin.blog.blogappapis.Entity.Role;
 import com.siyamuddin.blog.blogappapis.Entity.User;
 import com.siyamuddin.blog.blogappapis.Exceptions.ResourceNotFoundException;
 import com.siyamuddin.blog.blogappapis.Exceptions.UserAlreadyExists;
-import com.siyamuddin.blog.blogappapis.Payloads.UserDto;
+import com.siyamuddin.blog.blogappapis.Payloads.UserPayload.UserDto;
 import com.siyamuddin.blog.blogappapis.Repository.RoleRepo;
 import com.siyamuddin.blog.blogappapis.Repository.UserRepo;
 import com.siyamuddin.blog.blogappapis.Services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = "users")
 public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
@@ -42,6 +46,16 @@ public class UserServiceImpl implements UserService {
             log.info("Duplicate user tried to login.");
             throw new UserAlreadyExists(userCheck.get().getName(),userDto.getEmail());
         }
+        else if(userRepo.count()==0){
+            User user=this.modelMapper.map(userDto,User.class);
+            //encoded password
+            user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+            //roles
+            Role role= this.roleRepo.findById(AppConstants.ADMIN_USER).get();
+            user.getRoles().add(role);
+            User newUser=this.userRepo.save(user);
+            return this.modelMapper.map(newUser,UserDto.class);
+        }
         else {
         User user=this.modelMapper.map(userDto,User.class);
         //encoded password
@@ -54,6 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(key = "#userId")
     public UserDto updateUser(UserDto userDto, Integer userId) {
         User user=this.userRepo.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User","ID",userId));
 
@@ -68,9 +83,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(key = "#userId")
     public UserDto getUserById(Integer userId) {
         User user=userRepo.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User","ID",userId));
+        log.info(user.getRoles().toString());
         UserDto userDto=modelMapper.map(user, UserDto.class);
+
         return userDto;
     }
 
@@ -94,8 +112,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(key = "#userId")
     public void deleteUser(Integer userId) {
-        User user=userRepo.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User","ID",userId));
+        userRepo.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User","ID",userId));
         userRepo.deleteById(userId);
 
     }

@@ -9,14 +9,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
 @SpringBootApplication
 public class BlogAppApisApplication implements CommandLineRunner {
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private RoleRepo roleRepo;
 	public static void main(String[] args) {
@@ -41,7 +38,7 @@ try{
 	role1.setName("ROLE_NORMAL");
 
 	List<Role> roles=List.of(role,role1);
-	List<Role> result=this.roleRepo.saveAll(roles);
+	this.roleRepo.saveAll(roles);
 
 }catch (Exception e){
 	e.printStackTrace();

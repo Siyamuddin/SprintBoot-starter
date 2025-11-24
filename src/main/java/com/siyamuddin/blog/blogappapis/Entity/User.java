@@ -18,17 +18,59 @@ import java.util.stream.Collectors;
 @Setter
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    
+    @Column(nullable = false)
     private String name;
+    
+    @Column(nullable = false, unique = true)
     private String email;
+    
+    @Column(nullable = false)
     private String password;
+    
     private String about;
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    private List<Post> posts=new ArrayList<>();
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private List<Comment> comments=new ArrayList<>();
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    
+    // Email verification fields
+    @Column(name = "email_verified")
+    private Boolean emailVerified = false;
+    
+    @Column(name = "email_verification_token")
+    private String emailVerificationToken;
+    
+    @Column(name = "email_verification_token_expiry")
+    private Date emailVerificationTokenExpiry;
+    
+    // Password reset fields
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+    
+    @Column(name = "password_reset_token_expiry")
+    private Date passwordResetTokenExpiry;
+    
+    // Account security fields
+    @Column(name = "failed_login_attempts")
+    private Integer failedLoginAttempts = 0;
+    
+    @Column(name = "account_locked_until")
+    private Date accountLockedUntil;
+    
+    @Column(name = "last_login_date")
+    private Date lastLoginDate;
+    
+    // Profile fields
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+    
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    
+    private String timezone;
+    
+    private String locale;
+    
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name="user_role",
     joinColumns = @JoinColumn(name="user",referencedColumnName = "id"),inverseJoinColumns = @JoinColumn(name="role",referencedColumnName = "id"))
     private Set<Role> roles=new HashSet<>();
@@ -51,7 +93,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        if (accountLockedUntil == null) {
+            return true;
+        }
+        return accountLockedUntil.before(new Date());
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.siyamuddin.blog.blogappapis.Services;
 
-import com.siyamuddin.blog.blogappapis.Payloads.UserDto;
+import com.siyamuddin.blog.blogappapis.Payloads.UserPayload.UserDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -7,39 +7,36 @@ import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
-import io.swagger.v3.oas.annotations.servers.ServerVariable;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "UniBlog",
-                description = "This a backend of a complete blogging web application named UniBlog.",
+                title = "SAAS Starter Kit API",
+                description = "A production-ready SAAS Spring Boot starter kit with advanced user management, authentication, and security features.",
+                version = "1.0.0",
                 termsOfService = "Terms of Service",
                 contact = @Contact(
-                        name = "UDDIN SIYAM",
-                        email = "siyamuddin177@gmail.com",
-                        url = "https://siyamuddin.netlify.app"
+                        name = "SAAS Starter Team",
+                        email = "support@saasstarter.com"
                 )
-
         ),
-        servers = {@Server(
-                description = "Poduction Env",
-                url = "https://uniblogs-production.up.railway.app/"
-
-        ),
+        servers = {
                 @Server(
-        description = "Dev Env",
-        url = "http://localhost:9090"
-
-)
+                        description = "Development Environment",
+                        url = "http://localhost:9090"
+                ),
+                @Server(
+                        description = "Production Environment",
+                        url = "https://api.saasstarter.com"
+                )
         }
 )
 @SecurityScheme(
         name = "JWT-Auth",
-        description = "JWT Authentication Description",
-        scheme ="bearer",
+        description = "JWT Authentication using Bearer Token. Include 'Bearer {token}' in the Authorization header.",
+        scheme = "bearer",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
-        in= SecuritySchemeIn.QUERY
-        )
+        in = SecuritySchemeIn.HEADER
+)
 public class OpenApiConfiguration {
 }
