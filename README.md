@@ -2,6 +2,10 @@
 
 Production-ready Spring Boot 3 starter focused on user management, authentication, and security. Use it as a base for new SAAS ideas without rebuilding account infrastructure each time.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Key Features
 
 - **JWT Authentication + Refresh Tokens** with blacklist + session tracking

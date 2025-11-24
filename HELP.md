@@ -1,7 +1,7 @@
 # Read Me First
 The following was discovered as part of building this project:
 
-* The original package name 'com.siyamuddin.blog.blog-app-apis' is invalid and this project uses 'com.siyamuddin.blog.blogappapis' instead.
+* This project uses the package name 'com.siyamuddin.blog.blogappapis' for the SAAS starter kit.
 
 # Getting Started
 

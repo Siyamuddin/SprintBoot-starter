@@ -8,11 +8,11 @@
 		<version>3.2.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.siyamuddin.blog</groupId>
-	<artifactId>blog-app-apis</artifactId>
+	<groupId>com.siyamuddin</groupId>
+	<artifactId>saas-starter</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>blog-app-apis</name>
-	<description>This is an API for blogging application</description>
+	<name>saas-starter</name>
+	<description>Production-ready Spring Boot 3 SAAS starter kit with user management, authentication, and security features</description>
 	<properties>
 		<java.version>17</java.version>
 		<maven.compiler.source>17</maven.compiler.source>
