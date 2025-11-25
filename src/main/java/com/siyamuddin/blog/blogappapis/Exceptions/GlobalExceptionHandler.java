@@ -21,7 +21,7 @@ import java.security.SignatureException;
 import java.util.HashMap;
 import java.util.Map;
 @Slf4j
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.siyamuddin.blog.blogappapis.Controllers")
 public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
@@ -32,7 +32,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Access denied. You don't have permission to perform this action.",
-                false
+                false,
+                ErrorCode.AUTH_INSUFFICIENT_PERMISSIONS
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.FORBIDDEN);
     }
@@ -45,7 +46,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Authentication failed. Please login again.",
-                false
+                false,
+                ErrorCode.UNAUTHORIZED
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -58,7 +60,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Invalid username or password. Please check your credentials and try again.",
-                false
+                false,
+                ErrorCode.AUTH_INVALID_CREDENTIALS
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -70,7 +73,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "User not found. Please check your credentials.",
-                false
+                false,
+                ErrorCode.USER_NOT_FOUND
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -85,7 +89,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Your session has expired. Please login again.",
-                false
+                false,
+                ErrorCode.AUTH_TOKEN_EXPIRED
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -98,7 +103,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Invalid authentication token. Please login again.",
-                false
+                false,
+                ErrorCode.AUTH_TOKEN_INVALID
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -110,7 +116,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Invalid token format. Please login again.",
-                false
+                false,
+                ErrorCode.AUTH_TOKEN_INVALID
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -123,7 +130,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Token verification failed. Please login again.",
-                false
+                false,
+                ErrorCode.AUTH_TOKEN_INVALID
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -136,7 +144,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Invalid token. Please login again.",
-                false
+                false,
+                ErrorCode.AUTH_TOKEN_INVALID
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
     }
@@ -148,7 +157,7 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getDescription(false));
 
-        ApiResponse apiResponse = new ApiResponse(ex.getMessage(), false);
+        ApiResponse apiResponse = new ApiResponse(ex.getMessage(), false, ErrorCode.RESOURCE_NOT_FOUND);
         return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
     }
 
@@ -174,7 +183,16 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 request.getDescription(false));
 
-        ApiResponse apiResponse = new ApiResponse(ex.getMessage(), false);
+        ApiResponse apiResponse = new ApiResponse(ex.getMessage(), false, ErrorCode.USER_ALREADY_EXISTS);
+        return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiResponse> handleInvalidFileException(InvalidFileException ex, WebRequest request) {
+        log.warn("Invalid file upload: {} - Request: {}",
+                ex.getMessage(),
+                request.getDescription(false));
+        ApiResponse apiResponse = new ApiResponse(ex.getMessage(), false, ErrorCode.VALIDATION_FAILED);
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
     }
 
@@ -189,7 +207,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "Rate limit exceeded. Please try again later.",
-                false
+                false,
+                ErrorCode.RATE_LIMIT_EXCEEDED
         );
         
         // Set retry headers
@@ -216,7 +235,8 @@ public class GlobalExceptionHandler {
 
         ApiResponse apiResponse = new ApiResponse(
                 "An unexpected error occurred. Please try again later.",
-                false
+                false,
+                ErrorCode.INTERNAL_ERROR
         );
         return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }

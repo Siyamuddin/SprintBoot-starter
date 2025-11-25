@@ -17,7 +17,8 @@ public class AuthorizationService {
         if (authentication == null) return false;
 
         String currentEmail = authentication.getName();
-        User currentUser = userRepo.findByEmail(currentEmail).orElse(null);
+        // Use findByEmailWithRoles to eagerly fetch roles and avoid LazyInitializationException
+        User currentUser = userRepo.findByEmailWithRoles(currentEmail).orElse(null);
         if (currentUser == null) return false;
 
         // Check if user is admin

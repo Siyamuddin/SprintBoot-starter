@@ -57,6 +57,15 @@ public class RateLimitInterceptor implements HandlerInterceptor {
                 );
             }
             setRateLimitHeaders(response, probe);
+        } else if (isPasswordChangeEndpoint(requestURI, method)) {
+            ConsumptionProbe probe = rateLimitService.tryConsumeAndReturnRemainingPasswordChange();
+            if (!probe.isConsumed()) {
+                throw new RateLimitExceededException(
+                    "Too many password change attempts. Please try again later.",
+                    probe.getNanosToWaitForRefill() / 1_000_000_000
+                );
+            }
+            setRateLimitHeaders(response, probe);
         } else {
             // General API rate limiting
             ConsumptionProbe probe = rateLimitService.tryConsumeAndReturnRemainingGeneralApi();
@@ -86,6 +95,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     private boolean isCommentCreationEndpoint(String uri, String method) {
         return uri.contains("/comments") && "POST".equals(method);
+    }
+
+    private boolean isPasswordChangeEndpoint(String uri, String method) {
+        return uri.contains("/change-password") && "POST".equals(method);
     }
 
     private void setRateLimitHeaders(HttpServletResponse response, ConsumptionProbe probe) {

@@ -54,7 +54,7 @@ public class OAuthServiceImpl implements OAuthService {
         Optional<User> existingUser = userRepo.findByEmail(email);
         
         if (existingUser.isPresent()) {
-            User user = existingUser.get();
+            User user = existingUser.orElse(null); // Safe extraction after isPresent() check
             linkOAuthAccount(user, provider, providerId);
             return user;
         }

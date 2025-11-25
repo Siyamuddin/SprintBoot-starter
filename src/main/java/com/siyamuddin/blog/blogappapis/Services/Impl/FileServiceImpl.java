@@ -14,11 +14,16 @@ public class FileServiceImpl implements FileService {
     @Override
     public String uploadImage(String path, MultipartFile file) throws IOException {
         //File name
-        String name= file.getOriginalFilename();
+        String name = file.getOriginalFilename();
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("File name cannot be null or empty");
+        }
 
         //generate a random name
-        String randomID= UUID.randomUUID().toString();
-        String fileName1=randomID.concat(name.substring(name.lastIndexOf(".")));
+        String randomID = UUID.randomUUID().toString();
+        int lastDotIndex = name.lastIndexOf(".");
+        String extension = (lastDotIndex > 0) ? name.substring(lastDotIndex) : "";
+        String fileName1 = randomID.concat(extension);
         //Full path
         String filePath=path+File.separator+fileName1;
         //create folder if not created

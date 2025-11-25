@@ -26,6 +26,10 @@ public class RateLimitService {
     private Bucket commentCreationBucket;
 
     @Autowired
+    @Qualifier("passwordChangeRateLimitBucket")
+    private Bucket passwordChangeBucket;
+
+    @Autowired
     @Qualifier("generalApiRateLimitBucket")
     private Bucket generalApiBucket;
 
@@ -43,6 +47,10 @@ public class RateLimitService {
 
     public boolean tryConsumeCommentCreation() {
         return commentCreationBucket.tryConsume(1);
+    }
+
+    public boolean tryConsumePasswordChange() {
+        return passwordChangeBucket.tryConsume(1);
     }
 
     public boolean tryConsumeGeneralApi() {
@@ -63,6 +71,10 @@ public class RateLimitService {
 
     public ConsumptionProbe tryConsumeAndReturnRemainingCommentCreation() {
         return commentCreationBucket.tryConsumeAndReturnRemaining(1);
+    }
+
+    public ConsumptionProbe tryConsumeAndReturnRemainingPasswordChange() {
+        return passwordChangeBucket.tryConsumeAndReturnRemaining(1);
     }
 
     public ConsumptionProbe tryConsumeAndReturnRemainingGeneralApi() {

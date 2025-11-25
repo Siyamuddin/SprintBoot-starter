@@ -20,6 +20,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.siyamuddin.blog.blogappapis.Payloads.ApiResponse;
 import java.io.IOException;
 
 
@@ -36,15 +38,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-//        try {
-//            Thread.sleep(500);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
         //Authorization
 
         String requestHeader = request.getHeader("Authorization");
@@ -56,8 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             // Check if token is blacklisted
             if (tokenBlacklistService.isTokenBlacklisted(token)) {
-                log.warn("Blacklisted token attempted to be used");
-                filterChain.doFilter(request, response);
+                log.warn("Blacklisted token attempted to be used from IP: {}", request.getRemoteAddr());
+                sendUnauthorizedResponse(response, "Token has been revoked. Please login again.");
                 return;
             }
             
@@ -93,7 +92,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-
-
+    }
+    
+    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        ApiResponse apiResponse = new ApiResponse(message, false);
+        objectMapper.writeValue(response.getWriter(), apiResponse);
     }
 }

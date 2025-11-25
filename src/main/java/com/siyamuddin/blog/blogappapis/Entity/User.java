@@ -62,6 +62,9 @@ public class User implements UserDetails {
     // Profile fields
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+
+    @Column(name = "profile_image_storage_key")
+    private String profileImageStorageKey;
     
     @Column(name = "phone_number")
     private String phoneNumber;
@@ -70,7 +73,7 @@ public class User implements UserDetails {
     
     private String locale;
     
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name="user_role",
     joinColumns = @JoinColumn(name="user",referencedColumnName = "id"),inverseJoinColumns = @JoinColumn(name="role",referencedColumnName = "id"))
     private Set<Role> roles=new HashSet<>();

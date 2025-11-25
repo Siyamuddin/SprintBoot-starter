@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -46,6 +47,7 @@ public class AuditServiceImpl implements AuditService {
     
     @Override
     @Async
+    @Transactional
     public void logUserAction(String ipAddress, String userAgent, Integer userId, String action, 
                              String resourceType, Object resourceId, boolean success, String errorMessage) {
         try {
@@ -67,16 +69,19 @@ public class AuditServiceImpl implements AuditService {
     }
     
     @Override
+    @Transactional(readOnly = true)
     public Page<AuditLog> getUserAuditLogs(Integer userId, Pageable pageable) {
         return auditLogRepo.findByUserId(userId, pageable);
     }
     
     @Override
+    @Transactional(readOnly = true)
     public Page<AuditLog> getAuditLogsByAction(String action, Pageable pageable) {
         return auditLogRepo.findByAction(action, pageable);
     }
     
     @Override
+    @Transactional(readOnly = true)
     public List<AuditLog> getUserActionsSince(Integer userId, int hours) {
         LocalDateTime since = LocalDateTime.now().minusHours(hours);
         return auditLogRepo.findUserActionsSince(userId, since);

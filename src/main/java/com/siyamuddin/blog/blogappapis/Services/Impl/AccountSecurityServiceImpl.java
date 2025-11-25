@@ -35,7 +35,7 @@ public class AccountSecurityServiceImpl implements AccountSecurityService {
     @Transactional
     public void lockAccount(String email, int durationMinutes) {
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", 0));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, durationMinutes);
@@ -51,7 +51,7 @@ public class AccountSecurityServiceImpl implements AccountSecurityService {
     @Transactional
     public void unlockAccount(String email) {
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", 0));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         
         user.setAccountLockedUntil(null);
         user.setFailedLoginAttempts(0);
@@ -65,7 +65,7 @@ public class AccountSecurityServiceImpl implements AccountSecurityService {
     @Transactional
     public void incrementFailedLoginAttempts(String email) {
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", 0));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         
         int attempts = (user.getFailedLoginAttempts() == null ? 0 : user.getFailedLoginAttempts()) + 1;
         user.setFailedLoginAttempts(attempts);
@@ -84,7 +84,7 @@ public class AccountSecurityServiceImpl implements AccountSecurityService {
     @Transactional
     public void resetFailedLoginAttempts(String email) {
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "email", 0));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
         
         user.setFailedLoginAttempts(0);
         userRepo.save(user);

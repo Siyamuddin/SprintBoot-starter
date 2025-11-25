@@ -13,9 +13,12 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailService implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user=userRepo.findByEmail(username).orElseThrow(()->new ResourceNotFoundException("Email","email",0));
+        // Use findByEmailWithRoles to eagerly fetch roles and avoid LazyInitializationException
+        User user = userRepo.findByEmailWithRoles(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", username));
         return user;
     }
 }

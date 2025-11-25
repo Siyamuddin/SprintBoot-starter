@@ -17,6 +17,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Swagger/OpenAPI 3** documentation at `/swagger-ui/index.html`
 - **Configuration Profiles** for dev/prod, fully externalized properties
 - **Scalability Hooks**: Redis caching ready (see below), async processors, scheduled cleanup jobs
+- **Pluggable File Storage**: switch between local disk and AWS S3 with reusable upload services
 
 ## Getting Started
 
@@ -77,6 +78,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 | `app.caching.enabled` | Master switch to turn Redis caching on/off |
 | `spring.flyway.*` | Migration toggles, locations |
 | `spring.data.redis.*` | Redis host/port/password (enable caching) |
+| `filestorage.mode` | `local` (default) or `s3` upload backend |
+| `filestorage.local.*` | Local base path + public URI prefix (defaults to `uploads/` + `/uploads`) |
+| `filestorage.s3.*` | Bucket, region, credentials, optional CDN base URL, root folder |
 
 See `application.properties` for defaults.
 
@@ -90,7 +94,25 @@ See `application.properties` for defaults.
 
 - `JwtHelperTest` ensures token generation + validation.
 - `AccountSecurityServiceImplTest` covers lockout + reset behavior.
+- `FileStorageConfigTest` asserts the correct storage backend is wired for each mode.
+- `UserControllerTest` verifies the new profile-photo endpoints delegate to the storage service.
 - Run suite via `./mvnw test`.
+
+## File Uploads & Profile Photos
+
+- **Local mode (default):** files land under `uploads/` in the project root, exposed via `/uploads/**`. Override the directory URI via `filestorage.local.base-path` and `filestorage.local.public-uri-prefix`.
+- **S3 mode:** set `filestorage.mode=s3` and provide `filestorage.s3.bucket-name`, `region`, credentials (`access-key`, `secret-key`) and optional `public-base-url` if you front it with CloudFront/CDN.
+- **Cleanup toggle:** `filestorage.cleanup.enabled=true` removes the old file whenever a replacement upload succeeds; turn off to keep old revisions.
+- **Multipart sizes:** controlled through `spring.servlet.multipart.max-file-size` / `max-request-size` (defaults to 10 MB but override via env vars).
+
+### Profile photo endpoints
+
+| Endpoint | Description |
+| --- | --- |
+| `POST /api/v1/users/{id}/profile-photo` | Admin/owner uploads or replaces the specified user's profile photo. Accepts multipart `file` (JPEG, PNG, WEBP, GIF, AVIF, PDF). |
+| `POST /api/v1/users/me/profile-photo` | Authenticated user updates their own photo using the same payload. |
+
+Responses return the updated `UserDto` with the resolved `profileImageUrl`. The storage layer exposes simple builder classes (`FileUploadRequest`, `StoredFile`) so future features (attachments, documents, etc.) can reuse the same abstraction without touching controllers.
 
 ## Scalability Hooks
 
