@@ -3,6 +3,8 @@ services:
     image: mysql:8.0
     container_name: saas-db
     restart: unless-stopped
+    networks:
+      - saas-net
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -20,6 +22,8 @@ services:
     image: redis:7-alpine
     container_name: saas-redis
     restart: unless-stopped
+    networks:
+      - saas-net
     ports:
       - "${REDIS_PORT:-6379}:6379"
     healthcheck:
@@ -39,6 +43,10 @@ services:
         condition: service_started
     ports:
       - "9090:9090"
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - saas-net
     env_file:
       - .env
     environment:
@@ -63,7 +71,12 @@ services:
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD}
       SPRING_MAIL_SMTP_AUTH: ${SPRING_MAIL_SMTP_AUTH}
       SPRING_MAIL_SMTP_TLS: ${SPRING_MAIL_SMTP_TLS}
+      FILE_STORAGE_LOCAL_PATH: /app/uploads
 
 volumes:
   db_data:
+
+networks:
+  saas-net:
+    driver: bridge
 

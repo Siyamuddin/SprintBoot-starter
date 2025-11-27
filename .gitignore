@@ -1,19 +1,17 @@
- cHELP.md
+### Maven ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
 ### STS ###
-.env
 .apt_generated
 .classpath
 .factorypath
 .project
 .settings
 .springBeans
-# .sts4-cache0jljjjiu,jukiio/o/p[p[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]
-\\\\\\\\\\\\\\\\\\\\\\\\\\''''';/./l;;;;;;;;.;;;;;;;;;;;;[ppp;ppp;;////////.
+.sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
@@ -33,3 +31,29 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### macOS ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+
+### Logs ###
+*.log
+logs/
+
+### Uploads Directory ###
+uploads/
+
+### Temporary Files ###
+*.tmp
+*.temp
+*~

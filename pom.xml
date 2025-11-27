@@ -136,7 +136,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.vladimir-bukhtoyarov</groupId>
-			<artifactId>bucket4j-jcache</artifactId>
+			<artifactId>bucket4j-redis</artifactId>
 			<version>7.6.0</version>
 		</dependency>
 
