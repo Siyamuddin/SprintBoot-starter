@@ -951,9 +951,6 @@ Error: Unable to connect to database
 ### Documentation Files
 
 - `README.md` - Overview and quick start (this file)
-- `GUIDELINE.md` - Detailed developer guide
-- `HELP.md` - Detailed architecture and feature explanations (legacy)
-- `TESTING_GUIDE.md` - Manual testing procedures (legacy)
 
 ### External Documentation
 
@@ -1012,7 +1009,7 @@ docker compose exec db mysql -u root -p
 
 ---
 
-**Last Updated:** 2024
-**Maintained By:** Development Team
+**Last Updated:** 2025/11
+**Maintained By:** Development UDDIN SIYAM
 
 For questions or improvements to this guide, please open an issue or submit a pull request.
